@@ -276,7 +276,8 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
 	$(LOCAL_PATH)/prebuilts/bin/cnd:system/bin/cnd \
 	$(LOCAL_PATH)/prebuilts/bin/akmd8962_new:system/bin/akmd8962_new \
-	$(LOCAL_PATH)/prebuilts/bin/rmt_storage:system/bin/rmt_storage
+	$(LOCAL_PATH)/prebuilts/bin/rmt_storage:system/bin/rmt_storage \
+        $(LOCAL_PATH)/prebuilts/bin/sdcard:system/bin/sdcard
 
 PRODUCT_BUILD_PROP_OVERRIDES += BUILD_UTC_DATE=0
 
