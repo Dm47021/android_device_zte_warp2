@@ -1,6 +1,10 @@
 import init.qcom.usb.rc
 
 on early-init
+
+
+
+on init
     mkdir /mnt/shell/emulated 0700 shell shell
     mkdir /storage 0777 system sdcard_r
     mkdir /storage/emulated 0555 root root
@@ -27,13 +31,20 @@ on early-init
     symlink /storage/usbdisk0 /usbdisk0
     symlink /storage/usbdisk0 /mnt/usbdisk0
 
-on init
+
     mkdir /system
     mkdir /data 0771 system system
     mkdir /cache 0770 system cache
     mkdir /persist 0771 system system
 
+    # add fuse point
+    mkdir /storage/sdcard1 0000 system system
+    # add fuse point
+    symlink /storage/sdcard1 /Device
+
 on emmc-fs
+    # msm8660 firmware partitions
+    rm /vendor
     mkdir /vendor               0771 system system
     mkdir /vendor/etc           0771 system system
     mkdir /vendor/firmware      0771 system system
@@ -63,6 +74,13 @@ on property:crypto.driver.load=0
     symlink /system/vendor/etc/audio_policy.conf /system/etc/audio_policy.conf
 
 on post-fs-data
+
+    # add fuse point
+    mkdir /data/media 0775 media_rw media_rw
+    chown media_rw media_rw /data/media  
+
+
+
     # double check the perms and set owner
     chown root root /devlog
     chmod 0700 /devlog
@@ -214,6 +232,10 @@ on boot
     chown system system /sys/class/optical_sensors/proximity/ps_led
     chown system system /sys/class/optical_sensors/proximity/ps_test_mode
 
+    # for charging function
+    chown radio radio /sys/module/htc_battery_8x60/parameters/phone_call
+    chmod 0660 /sys/module/htc_battery_8x60/parameters/phone_call
+
     # to enable low charge current in voice call
     chown radio radio /sys/class/power_supply/battery/charger_control
     chmod 0660 /sys/class/power_supply/battery/charger_control
@@ -251,6 +273,15 @@ service hdmid /system/bin/hdmid
 service iprenew_wlan0 /system/bin/dhcpcd -n
     disabled
     oneshot
+
+service modem /system/bin/wireless_modem
+    user system
+    group system radio
+    disabled
+
+service mpdecision /system/bin/mpdecision --no_sleep --avg_comp --single_core_while_panel_off
+    user root
+    disabled
 
 service netmgrd /system/bin/netmgrd
     class main
